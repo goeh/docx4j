@@ -86,6 +86,9 @@ public class MailMergerWithNext extends MailMerger {
             if (fr.getFldName().equals("MERGEFIELD")) {
 
                 String instr = extractInstr(fr.getInstructions());
+		if(instr == null) {
+			continue;
+		}
                 String datafieldName = getDatafieldNameFromInstr(instr);
                 String val = datamap.get(new DataFieldName(datafieldName));
                 String gFormat = null; // required only for FORMTEXT conversion

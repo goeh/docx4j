@@ -499,8 +499,11 @@ public class MailMerger {
 		for (FieldRef fr : fieldRefs) {
 			
 			if ( fr.getFldName().equals("MERGEFIELD") ) {
-				
+
 				String instr = extractInstr(fr.getInstructions() );
+				if(instr == null) {
+					continue;
+				}
 				String lang = extractLang(fr.getResultsSlot());
 				String datafieldName = getDatafieldNameFromInstr(instr);
 				String val = datamap.get( new DataFieldName(datafieldName));
@@ -701,7 +704,7 @@ public class MailMerger {
 		// For MERGEFIELD, expect the list to contain a simple string
 		
 		if (instructions.size()!=1) {
-			log.error("TODO MERGEFIELD field contained complex instruction");
+			log.warn("TODO MERGEFIELD field contained complex instruction");
 			/* eg
 			 * 
 			 *    <w:r>
@@ -720,7 +723,7 @@ public class MailMerger {
 					}
 				}
 			 */
-			return null;
+			return concatenateInstructions(instructions);
 		}
 		
 		Object o = XmlUtils.unwrap(instructions.get(0));
@@ -734,6 +737,17 @@ public class MailMerger {
 			return null;
 		}
 	}
+
+ 	private static String concatenateInstructions(List<Object> instructions) {
+ 		StringBuilder s = new StringBuilder();
+ 		for(Object i : instructions) {
+ 			Object o = XmlUtils.unwrap(i);
+ 			if (o instanceof Text) {
+ 				s.append(((Text) o).getValue());
+ 			}
+ 		}
+ 		return s.length() > 0 ? s.toString() : null;
+ 	}
 	
     /**
      * Remove the field but preserve the paragraph and content around it
